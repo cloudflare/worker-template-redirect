@@ -2,39 +2,12 @@
 const hostname = 'workers-tooling.cf'
 const externalHostname = 'victoriacf.tk'
 const REDIRECT_MAP = new Map([
-    ['/redirect1', 'https://' + externalHostname + '/redirect2'],
-    ['/redirect2', 'https://' + externalHostname + '/redirect3'],
-    ['/redirect3', 'https://' + externalHostname + '/redirect4'],
-    ['/redirect4', 'https://google.com'],
+    ['/bulk1', 'https://' + externalHostname + '/redirect2'],
+    ['/bulk2', 'https://' + externalHostname + '/redirect3'],
+    ['/bulk3', 'https://' + externalHostname + '/redirect4'],
+    ['/bulk4', 'https://google.com'],
 ])
 const someURLToRedirectTo = 'https://www.google.com'
-const someURLThatSendsRedirects = 'http://victoriacf.tk/redirect1'
-const maxRedirects = 10
-
-/**
- *  By default, fetch follows redirects. followRedirects
- *  follows all the redirect so a clien't browser won't have
- *  to
- * @param {Request} req
- */
-async function followRedirects(req) {
-    return await fetch(req)
-}
-
-/**
- *  By default, fetch follows redirects. catchRedirects
- *  stops the request at the first redirect
- * @param {Request|string} req
- */
-async function catchRedirects(req) {
-    const location = typeof req === 'string' ? req : req.url
-    const init =
-        typeof req === 'string'
-            ? { redirect: 'manual' }
-            : { ...req, redirect: 'manual' }
-
-    return await fetch(location, init)
-}
 
 /**
  * redirectResponse returns a redirect Response
@@ -52,7 +25,7 @@ async function redirectResponse(url, type = 301) {
  */
 async function bulkRedirects(request, redirectMap) {
     let requestURL = new URL(request.url)
-    let path = requestURL.pathname
+    let path = requestURL.pathname.split('/redirect')[1]
     let location = redirectMap.get(path)
 
     if (location) {
@@ -68,16 +41,15 @@ async function bulkRedirects(request, redirectMap) {
 addEventListener('fetch', async event => {
     const { request } = event
     const { url, method } = request
+    // demo is hosted on workers-tooling.cf/demos/redirect so get the last
+    // part of the path
+    const path = new URL(url).pathname.split('/redirect')[1]
 
-    if (url.match('/redirect[0-3]'))
+    if (path.match('/bulk[0-3]'))
         event.respondWith(bulkRedirects(request, REDIRECT_MAP))
-    if (url.endsWith('/follow'))
-        event.respondWith(followRedirects(someURLThatSendsRedirects))
-    if (url.endsWith('/not-follow'))
-        event.respondWith(catchRedirects(someURLThatSendsRedirects))
-    if (url.includes('/send'))
-        event.respondWith(redirectResponse(someURLToRedirectTo))
-    if (url.includes('/device'))
+    if (path.includes('/send'))
+        event.respondWith(redirectResponse(somepathToRedirectTo))
+    if (path.includes('/device'))
         event.respondWith(
             redirectOnDeviceType(
                 event.request,
