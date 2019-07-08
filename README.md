@@ -2,7 +2,7 @@
 
 Examples of sending single and bulk redirects from a Worker script.
 
-[`index.js`](https://github.com/cloudflare/worker-template-redirects/blob/master/redirect.js) is the content of the Workers script.
+[`index.js`](https://github.com/cloudflare/worker-template-redirects/blob/master/index.js) is the content of the Workers script.
 
 Live Demos are hosted on `workers-tooling.cf/demos/redirect`:
 
